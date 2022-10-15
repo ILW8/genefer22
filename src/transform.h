@@ -56,6 +56,7 @@ private:
 	static transform * create_avx(const uint32_t b, const uint32_t n, const size_t num_threads, const size_t num_regs, const bool checkError);
 	static transform * create_fma(const uint32_t b, const uint32_t n, const size_t num_threads, const size_t num_regs, const bool checkError);
 	static transform * create_512(const uint32_t b, const uint32_t n, const size_t num_threads, const size_t num_regs, const bool checkError);
+    static transform * create_neon(const uint32_t b, const uint32_t n, const size_t num_threads, const size_t num_regs, const bool checkError);
 #endif
 
 public:
@@ -81,6 +82,11 @@ public:
 								  const bool checkError, std::string & ttype)
 	{
 		transform * pTransform = nullptr;
+
+#if defined(__ARM_NEON)
+        pTransform = transform::create_neon(b, n, num_threads, num_regs, checkError);
+        ttype = "sse4 (sse2neon)";
+#else
 
 		if (__builtin_cpu_supports("avx512f") && (impl.empty() || (impl == "512")))
 		{
@@ -118,6 +124,7 @@ public:
 			std::ostringstream ss; ss << impl << " is not supported";
 			throw std::runtime_error(ss.str());
 		}
+#endif
 
 		return pTransform;
 	}

@@ -8,7 +8,11 @@ Please give feedback to the authors if improvement is realized. It is distribute
 #pragma once
 
 #include <cstdint>
+#if !defined(__ARM_NEON)
 #include <immintrin.h>
+#else
+#include "sse2neon.h"
+#endif
 
 #include <omp.h>
 
@@ -112,18 +116,18 @@ template<>
 class Vd<2>
 {
 private:
-	__v2df r;
+	__m128d r;
 
 private:
-	constexpr explicit Vd(const __v2df & _r) : r(_r) {}
+	constexpr explicit Vd(const __m128d & _r) : r(_r) {}
 
 public:
 	finline explicit Vd() {}
-	finline explicit Vd(const double & f) : r(__v2df(_mm_set_pd(0.0, f))) {}
+	finline explicit Vd(const double & f) : r(__m128d(_mm_set_pd(0.0, f))) {}
 	finline Vd(const Vd & rhs) : r(rhs.r) {}
 	finline Vd & operator=(const Vd & rhs) { r = rhs.r; return *this; }
 
-	finline static Vd broadcast(const double & f) { return Vd(__v2df(_mm_set1_pd(f))); }
+	finline static Vd broadcast(const double & f) { return Vd(__m128d(_mm_set1_pd(f))); }
 	finline static Vd broadcast(const double &, const double &) { return Vd(0.0); }	// unused
 
 	finline double operator[](const size_t i) const { return r[i]; }
@@ -139,20 +143,20 @@ public:
 	finline Vd operator-(const Vd & rhs) const { Vd vd = *this; vd -= rhs; return vd; }
 	finline Vd operator*(const Vd & rhs) const { Vd vd = *this; vd *= rhs; return vd; }
 
-	finline void shift(const double f) { r = __v2df(_mm_set_pd(r[0], f)); }
+	finline void shift(const double f) { r = __m128d(_mm_set_pd(r[0], f)); }
 
-	finline Vd round() const { return Vd(__v2df(round_pd(__m128d(r)))); } 
+	finline Vd round() const { return Vd(__m128d(round_pd(__m128d(r)))); }
 
-	finline Vd abs() const { return Vd(__v2df(_mm_andnot_pd(_mm_set1_pd(-0.0), __m128d(r)))); }
-	finline Vd & max(const Vd & rhs) { r = __v2df(_mm_max_pd(__m128d(r), __m128d(rhs.r))); return *this; }
+	finline Vd abs() const { return Vd(__m128d(_mm_andnot_pd(_mm_set1_pd(-0.0), __m128d(r)))); }
+	finline Vd & max(const Vd & rhs) { r = __m128d(_mm_max_pd(__m128d(r), __m128d(rhs.r))); return *this; }
 	finline double max() const { return std::max(r[0], r[1]); }
 
 	finline void interleave(Vd &) {}	// unused
 
 	finline static void transpose(Vd vd[2])
 	{
-		const __v2df t = __v2df(_mm_unpackhi_pd(vd[0].r, vd[1].r));
-		vd[0].r = __v2df(_mm_unpacklo_pd(vd[0].r, vd[1].r)); vd[1].r = t;
+		const __m128d t = __m128d(_mm_unpackhi_pd(vd[0].r, vd[1].r));
+		vd[0].r = __m128d(_mm_unpacklo_pd(vd[0].r, vd[1].r)); vd[1].r = t;
 	}
 };
 
@@ -1369,6 +1373,23 @@ private:
 		forward_out(zl, w122i);
 	}
 
+protected:
+    static void * alignNew(const size_t size, const size_t alignment, const size_t offset = 0)
+    {
+        char * const allocPtr = new char[size + alignment + offset + sizeof(size_t)];
+        const size_t addr = size_t(allocPtr) + alignment + sizeof(size_t);
+        size_t * const ptr = (size_t *)(addr - addr % alignment + offset);
+        ptr[-1] = size_t(allocPtr);
+        return (void *)(ptr);
+    }
+
+protected:
+    static void alignDelete(void * const ptr)
+    {
+        char * const allocPtr = (char *)((size_t *)(ptr))[-1];
+        delete[] allocPtr;
+    }
+
 public:
 	transformCPUf64(const uint32_t b, const uint32_t n, const size_t num_threads, const size_t num_regs, const bool checkError)
 		: transform(N, n, b, IBASE ? ((VSIZE == 2) ? EKind::IBDTvec2 : ((VSIZE == 4) ? EKind::IBDTvec4 : EKind::IBDTvec8))
@@ -1377,8 +1398,8 @@ public:
 		_b(b), _b_inv(1.0 / b), _sb(double(sqrtl(b))), _sb_inv(double(1 / sqrtl(b))), _isb(_sqrt_b.hi()), _fsb(_sqrt_b.lo()),
 		_mem_size(wSize + wsSize + zSize + fcSize + zSize + (num_regs - 1) * zSize + 2 * 1024 * 1024),
 		_cache_size(wSize + wsSize + zSize + fcSize), _checkError(checkError), _error(0),
-		_mem((char *)_mm_malloc(_mem_size, 2 * 1024 * 1024)),
-		_z_copy((Vc *)_mm_malloc(zSize, 1024))
+        _mem((char *)alignNew(_mem_size, 2 * 1024 * 1024)),
+        _z_copy((Vc *)alignNew(zSize, 1024))
 	{
 		Complex * const w122i = (Complex *)&_mem[wOffset];
 		for (size_t s = N / 16; s >= 4; s /= 4)
@@ -1405,8 +1426,8 @@ public:
 
 	virtual ~transformCPUf64()
 	{
-		_mm_free((void *)_mem);
-		_mm_free((void *)_z_copy);
+        alignDelete((void *)_mem);
+        alignDelete((void *)_z_copy);
 	}
 
 	size_t getMemSize() const override { return _mem_size; }
@@ -1495,7 +1516,7 @@ protected:
 				Vc vc;
 				for (size_t i = 0; i < VSIZE; ++i)
 				{
-					const Complex zc(double(zi[k + i + 0 * N]), double(zi[k + i + 1 * N]));
+					const Complex zc((double(zi[k + i + 0 * N])), double(zi[k + i + 1 * N]));
 					vc.set(i, zc);
 				}
 				z[index(k) / VSIZE] = vc;
