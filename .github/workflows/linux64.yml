@@ -124,7 +124,7 @@ jobs:
           genefer22/bin/genefer22*
 
   linux32:
-    needs: boinc-32
+    needs: boinc32
     runs-on: ubuntu-latest
     
     steps:
