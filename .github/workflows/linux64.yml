@@ -10,7 +10,7 @@ env:
   boinc_ref: 82d0a3731c743884b6e7a25d68c6558eca691635  # client release 7.20.2
 
 jobs:
-  build-boinc:
+  boinc:
     runs-on: ubuntu-latest
 
     steps:
@@ -45,11 +45,13 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: boinc-artifacts-${{ github.run_id }}
-        path: boinc/
+        path: |
+          boinc/libboinc.a
+          boinc/api
         retention-days: 1
         
         
-  build-genefer22:
+  linux64:
     needs: build-boinc
     runs-on: ubuntu-latest
     
@@ -57,8 +59,11 @@ jobs:
     - name: Download boinc artifacts
       uses: actions/download-artifact@v3
       with:
-        name: boinc-artifacts
-        path: boinc/
+        name: boinc-artifacts-${{ github.run_id }}
+        path: |
+          boinc/libboinc.a
+          boinc/api
+      
     
     - name: Checkout genefer22
       uses: actions/checkout@v3
