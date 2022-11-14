@@ -24,13 +24,7 @@ jobs:
           boinc/lib
           boinc/include
           boinc/api
-        key: boinc-${{ runner.os }}-${{ env.boinc_ref }}
-        
-    - name: Install boinc deps
-      run: |
-        sudo dpkg --add-architecture i386
-        sudo apt-get update 
-        sudo apt-get install gcc-multilib g++-multilib
+        key: boinc-${{ runner.os }}-${{ env.boinc_ref }}-64
 
     - name: Checkout boinc
       if: steps.cache-boinc.outputs.cache-hit != 'true'
@@ -47,15 +41,47 @@ jobs:
         ./_autosetup && ./configure --disable-server --disable-client --disable-manager --build=i686-pc-linux-gnu
         make
         
-    - name: archive build
-      run: tar -cvzf boinc.tar.gz boinc/
-      
-    - name: Upload boinc artifacts
-      uses: actions/upload-artifact@v3
+  boinc32:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Cache BOINC libs
+      id: cache-boinc-32
+      uses: actions/cache@v3
       with:
-        name: boinc-build-thing-yes
         path: |
-          boinc.tar.gz
+          boinc/libboinc.a
+          boinc/version.h
+          boinc/lib
+          boinc/include
+          boinc/api
+        key: boinc-${{ runner.os }}-${{ env.boinc_ref }}-32
+        
+    - name: Install boinc deps
+      run: |
+        sudo dpkg --add-architecture i386
+        sudo apt-get update 
+        sudo apt-get install gcc-multilib g++-multilib
+
+    - name: Checkout boinc
+      if: steps.cache-boinc-32.outputs.cache-hit != 'true'
+      uses: actions/checkout@v3
+      with:
+        repository: 'BOINC/boinc'
+        ref: ${{ env.boinc_ref }}
+        path: 'boinc'
+        
+    - name: Build boinc
+      if: steps.cache-boinc-32.outputs.cache-hit != 'true'
+      env:
+        CC: 'gcc -m32'
+        CXX: 'g++ -m32'
+      run: |
+        cd boinc
+        ./_autosetup && ./configure --disable-server --disable-client --disable-manager --build=i686-pc-linux-gnu
+        make
+          
+          
         
         
   linux64:
@@ -98,7 +124,7 @@ jobs:
           genefer22/bin/genefer22*
 
   linux32:
-    needs: boinc
+    needs: boinc-32
     runs-on: ubuntu-latest
     
     steps:
@@ -112,7 +138,7 @@ jobs:
           boinc/lib
           boinc/include
           boinc/api
-        key: boinc-${{ runner.os }}-${{ env.boinc_ref }}
+        key: boinc-${{ runner.os }}-${{ env.boinc_ref }}-32
     
     - name: Fail if boinc missing
       if: steps.cache-boinc.outputs.cache-hit != 'true'
