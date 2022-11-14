@@ -40,17 +40,6 @@ jobs:
         cd boinc
         ./_autosetup && ./configure --disable-server --disable-client --disable-manager
         make
-      
-    - name: Upload boinc artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: boinc-artifacts-${{ github.run_id }}
-        path: |
-          boinc/version.h
-          boinc/libboinc.a
-          boinc/api
-          boinc/lib
-        retention-days: 1
         
         
   linux64:
@@ -58,11 +47,21 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Download boinc artifacts
-      uses: actions/download-artifact@v3
+    - name: Use cached BOINC libs
+      id: cache-boinc
+      uses: actions/cache@v3
       with:
-        name: boinc-artifacts-${{ github.run_id }}
-        path: boinc/
+        path: |
+          boinc/libboinc.a
+          boinc/version.h
+          boinc/lib
+          boinc/include
+          boinc/api
+        key: boinc-${{ runner.os }}-${{ env.boinc_ref }}
+    
+    - name: Fail if boinc missing
+      if: steps.cache-boinc.outputs.cache-hit != 'true'
+      run: exit 1
     
     - name: Checkout genefer22
       uses: actions/checkout@v3
