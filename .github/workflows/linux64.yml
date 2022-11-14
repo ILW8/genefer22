@@ -19,7 +19,7 @@ jobs:
         ref: '82d0a3731c743884b6e7a25d68c6558eca691635' # client release 7.20.2
         path: 'boinc'
     - name: Build boinc
-      run: pwd && ls -lah
+      run: cd boinc && ./_autosetup && ./configure --disable-server --disable-client --disable-manager
         
     - name: Checkout genefer22
       uses: actions/checkout@v3
