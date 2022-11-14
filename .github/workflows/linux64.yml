@@ -108,7 +108,9 @@ jobs:
         path: 'genefer22'
         
     - name: Get dependencies
-      run: sudo apt-get update && sudo apt-get install libgmp-dev ocl-icd-opencl-dev gcc-multilib g++-multilib
+      run: sudo dpkg --add-architecture i386 \
+        && sudo apt-get update \
+        && sudo apt-get install libgmp-dev:i386 ocl-icd-opencl-dev:i386 gcc-multilib g++-multilib
       
     - name: make
       run: cd genefer22 && make -f Makefile_linux32
