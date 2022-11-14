@@ -49,6 +49,7 @@ jobs:
           boinc/version.h
           boinc/libboinc.a
           boinc/api
+          boinc/lib
         retention-days: 1
         
         
