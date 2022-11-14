@@ -77,6 +77,3 @@ jobs:
         name: linux64_bins
         path: |
           genefer22/bin/genefer22*
-    - name: Delete boinc artifacts
-      if: always()
-      uses: 
