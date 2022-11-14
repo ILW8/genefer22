@@ -52,7 +52,7 @@ jobs:
         
         
   linux64:
-    needs: build-boinc
+    needs: boinc
     runs-on: ubuntu-latest
     
     steps:
