@@ -25,6 +25,12 @@ jobs:
           boinc/include
           boinc/api
         key: boinc-${{ runner.os }}-${{ env.boinc_ref }}
+        
+    - name: Install boinc deps
+      run: |
+        sudo dpkg --add-architecture i386
+        sudo apt-get update 
+        sudo apt-get install gcc-multilib g++-multilib
 
     - name: Checkout boinc
       if: steps.cache-boinc.outputs.cache-hit != 'true'
