@@ -65,9 +65,6 @@ jobs:
           boinc/version.h
           boinc/libboinc.a
           boinc/api
-    - name: yep
-      run: ls -lah
-      
     
     - name: Checkout genefer22
       uses: actions/checkout@v3
@@ -78,7 +75,7 @@ jobs:
       run: sudo apt-get update && sudo apt-get install libgmp-dev ocl-icd-opencl-dev
       
     - name: make
-      run: cd genefer22 && make -f Makefile_linux64
+      run: cd genefer22 && ls -lah && ls -lah ../boinc/ && make -f Makefile_linux64
       
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
