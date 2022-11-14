@@ -34,4 +34,11 @@ jobs:
       run: sudo apt-get update && sudo apt-get install libgmp-dev ocl-icd-opencl-dev
       
     - name: make
-      run: cd genefer22 && ls -lah # make -f Makefile_linux64
+      run: cd genefer22 && make -f Makefile_linux64
+      
+    - name: Upload bins as artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist-without-markdown
+        path: |
+          bin/genefer22*
