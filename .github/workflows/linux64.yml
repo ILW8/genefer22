@@ -10,8 +10,7 @@ env:
   boinc_ref: 82d0a3731c743884b6e7a25d68c6558eca691635  # client release 7.20.2
 
 jobs:
-  build:
-
+  build-boinc:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,8 +40,26 @@ jobs:
         cd boinc
         ./_autosetup && ./configure --disable-server --disable-client --disable-manager
         make
+      
+    - name: Upload boinc artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: boinc-artifacts-${{ github.run_id }}
+        path: boinc/
+        retention-days: 1
         
         
+  build-genefer22:
+    needs: build-boinc
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Download boinc artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: boinc-artifacts
+        path: boinc/
+    
     - name: Checkout genefer22
       uses: actions/checkout@v3
       with: 
@@ -60,3 +77,6 @@ jobs:
         name: linux64_bins
         path: |
           genefer22/bin/genefer22*
+    - name: Delete boinc artifacts
+      if: always()
+      uses: 
