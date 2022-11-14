@@ -80,3 +80,42 @@ jobs:
         name: linux64_bins
         path: |
           genefer22/bin/genefer22*
+
+  linux32:
+    needs: boinc
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Use cached BOINC libs
+      id: cache-boinc
+      uses: actions/cache@v3
+      with:
+        path: |
+          boinc/libboinc.a
+          boinc/version.h
+          boinc/lib
+          boinc/include
+          boinc/api
+        key: boinc-${{ runner.os }}-${{ env.boinc_ref }}
+    
+    - name: Fail if boinc missing
+      if: steps.cache-boinc.outputs.cache-hit != 'true'
+      run: exit 1
+    
+    - name: Checkout genefer22
+      uses: actions/checkout@v3
+      with: 
+        path: 'genefer22'
+        
+    - name: Get dependencies
+      run: sudo apt-get update && sudo apt-get install libgmp-dev ocl-icd-opencl-dev
+      
+    - name: make
+      run: cd genefer22 && make -f Makefile_linux32
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: linux32_bins
+        path: |
+          genefer22/bin/genefer22*
