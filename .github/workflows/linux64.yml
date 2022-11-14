@@ -23,6 +23,8 @@ jobs:
         
     - name: Checkout genefer22
       uses: actions/checkout@v3
+      with: 
+        path: 'genefer22'
       
     - name: make
       run: pwd && ls -lah # make -f Makefile_linux64
