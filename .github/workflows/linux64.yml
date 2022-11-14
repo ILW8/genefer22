@@ -31,7 +31,7 @@ jobs:
         path: 'genefer22'
         
     - name: Get dependencies
-      run: apt-get update && apt-get install libgmp-dev ocl-icd-opencl-dev
+      run: sudo apt-get update && sudo apt-get install libgmp-dev ocl-icd-opencl-dev
       
     - name: make
       run: cd genefer22 && ls -lah # make -f Makefile_linux64
