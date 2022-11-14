@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Cache Primes
+    - name: Cache BOINC libs
       id: cache-boinc
       uses: actions/cache@v3
       with:
@@ -23,7 +23,8 @@ jobs:
           boinc/libboinc.a
           boinc/lib
           boinc/include
-        key: ${{ runner.os }}-${{ env.boinc_ref }}
+          boinc/api
+        key: boinc-${{ runner.os }}-${{ env.boinc_ref }}
 
     - name: Checkout boinc
       if: steps.cache-boinc.outputs.cache-hit != 'true'
@@ -52,7 +53,7 @@ jobs:
     - name: make
       run: cd genefer22 && make -f Makefile_linux64
       
-    - name: Upload bins as artifacts
+    - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
         name: linux64_bins
