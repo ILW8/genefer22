@@ -58,6 +58,7 @@ jobs:
         key: boinc-${{ runner.os }}-${{ env.boinc_ref }}-32
         
     - name: Install boinc deps
+      if: steps.cache-boinc-32.outputs.cache-hit != 'true'
       run: |
         sudo dpkg --add-architecture i386
         sudo apt-get update 
