@@ -40,6 +40,12 @@ jobs:
         cd boinc
         ./_autosetup && ./configure --disable-server --disable-client --disable-manager --build=i686-pc-linux-gnu
         make
+    - name: Upload boinc artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: boinc-build-thing
+        path: |
+          boinc/
         
         
   linux64:
