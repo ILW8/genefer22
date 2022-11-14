@@ -61,10 +61,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: boinc-artifacts-${{ github.run_id }}
-        path: |
-          boinc/version.h
-          boinc/libboinc.a
-          boinc/api
+        path: boinc/
     
     - name: Checkout genefer22
       uses: actions/checkout@v3
