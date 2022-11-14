@@ -12,6 +12,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout boinc
+      uses: actions/checkout@v3
+      with:
+        repository: 'BOINC/boinc'
+        ref: '82d0a3731c743884b6e7a25d68c6558eca691635' # client release 7.20.2
+        path: 'boinc'
+    - name: Build boinc
+      run: ls
+        
+    - name: Checkout genefer22
+      uses: actions/checkout@v3
+      
     - name: make
-      run: make -f Makefile_linux64
+      run: ls # make -f Makefile_linux64
