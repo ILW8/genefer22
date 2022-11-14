@@ -19,12 +19,19 @@ jobs:
         ref: '82d0a3731c743884b6e7a25d68c6558eca691635' # client release 7.20.2
         path: 'boinc'
     - name: Build boinc
-      run: cd boinc && ./_autosetup && ./configure --disable-server --disable-client --disable-manager
+      run: |
+        cd boinc
+        ./_autosetup && ./configure --disable-server --disable-client --disable-manager
+        make
+        
         
     - name: Checkout genefer22
       uses: actions/checkout@v3
       with: 
         path: 'genefer22'
+        
+    - name: Get dependencies
+      run: apt-get update && apt-get install libgmp-dev ocl-icd-opencl-dev
       
     - name: make
-      run: pwd && ls -lah # make -f Makefile_linux64
+      run: cd genefer22 && ls -lah # make -f Makefile_linux64
