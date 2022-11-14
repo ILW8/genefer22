@@ -39,6 +39,6 @@ jobs:
     - name: Upload bins as artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: dist-without-markdown
+        name: genefer22_linux64
         path: |
-          bin/genefer22*
+          genefer22/bin/genefer22*
