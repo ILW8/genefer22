@@ -19,10 +19,10 @@ jobs:
         ref: '82d0a3731c743884b6e7a25d68c6558eca691635' # client release 7.20.2
         path: 'boinc'
     - name: Build boinc
-      run: ls
+      run: pwd && ls -lah
         
     - name: Checkout genefer22
       uses: actions/checkout@v3
       
     - name: make
-      run: ls # make -f Makefile_linux64
+      run: pwd && ls -lah # make -f Makefile_linux64
