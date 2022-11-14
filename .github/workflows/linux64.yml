@@ -65,6 +65,8 @@ jobs:
           boinc/version.h
           boinc/libboinc.a
           boinc/api
+    - name: yep
+      run: ls -lah
       
     
     - name: Checkout genefer22
