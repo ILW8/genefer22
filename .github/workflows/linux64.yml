@@ -10,7 +10,7 @@ env:
   boinc_ref: 82d0a3731c743884b6e7a25d68c6558eca691635  # client release 7.20.2
 
 jobs:
-  boinc:
+  boinc64:
     runs-on: ubuntu-latest
 
     steps:
@@ -85,7 +85,7 @@ jobs:
         
         
   linux64:
-    needs: boinc
+    needs: boinc64
     runs-on: ubuntu-latest
     
     steps:
@@ -99,7 +99,7 @@ jobs:
           boinc/lib
           boinc/include
           boinc/api
-        key: boinc-${{ runner.os }}-${{ env.boinc_ref }}
+        key: boinc-${{ runner.os }}-${{ env.boinc_ref }}-64
     
     - name: Fail if boinc missing
       if: steps.cache-boinc.outputs.cache-hit != 'true'
