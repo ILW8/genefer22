@@ -38,7 +38,7 @@ jobs:
       if: steps.cache-boinc.outputs.cache-hit != 'true'
       run: |
         cd boinc
-        ./_autosetup && ./configure --disable-server --disable-client --disable-manager
+        ./_autosetup && ./configure --disable-server --disable-client --disable-manager --build=i686-pc-linux-gnu
         make
         
         
