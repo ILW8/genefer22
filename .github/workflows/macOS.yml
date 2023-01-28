@@ -98,11 +98,11 @@ jobs:
           path: 'genefer22'
 
       - name: make
-        run: cd genefer22 && make -f Makefile_macIntel
+        run: cd genefer22/genefer && make -f Makefile_macIntel
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: macIntel64_bins
           path: |
-            genefer22/bin/genefer22*
+            genefer22/bin/genefer*

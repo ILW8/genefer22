@@ -159,12 +159,12 @@ jobs:
         sudo apt-get install libgmp-dev:i386 ocl-icd-opencl-dev:i386 gcc-multilib g++-multilib
       
     - name: make
-      run: cd genefer22 && make -f Makefile_linux32
+      run: cd genefer22/genefer && make -f Makefile_linux32
       
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
         name: linux32_bins
         path: |
-          genefer22/bin/genefer22*
+          genefer22/bin/genefer*
 
